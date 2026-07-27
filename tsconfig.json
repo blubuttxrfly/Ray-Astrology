@@ -5,9 +5,18 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
-    "typeRoots": ["./node_modules/@types", "./"]
+    "typeRoots": [
+      "./node_modules/@types",
+      "./"
+    ]
   },
-  "include": ["./**/*.ts", "./**/*.tsx"]
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "nativewind-env.d.ts"
+  ]
 }

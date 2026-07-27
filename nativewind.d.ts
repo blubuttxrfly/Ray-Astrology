@@ -1,4 +1,4 @@
-import "nativewind";
+/// <reference types="nativewind" />
 import { ViewProps, TextProps, ScrollViewProps, TextInputProps, TouchableOpacityProps } from "react-native";
 
 declare module "react-native" {
@@ -17,4 +17,9 @@ declare module "react-native" {
   interface TouchableOpacityProps {
     className?: string;
   }
+}
+
+declare module "*.css" {
+  const content: string;
+  export default content;
 }
