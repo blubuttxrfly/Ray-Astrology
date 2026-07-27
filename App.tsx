@@ -6,26 +6,32 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { View, Text } from "react-native";
 
-import { useThemeStore } from "./src/store/themeStore";
+import { useTheme, ThemeProvider } from "./src/components/ThemeProvider";
 import { useProfileStore } from "./src/store/profileStore";
+import { useThemeStore } from "./src/store/themeStore";
+import { useFonts } from "./src/hooks/useFonts";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { BeingsScreen } from "./src/screens/BeingsScreen";
 import { SynastryScreen } from "./src/screens/SynastryScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
-import { ThemeProvider } from "./src/components/ThemeProvider";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { colors, isDark } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: "#1a1410", borderTopColor: "#3d2d20" },
-        tabBarActiveTintColor: "#a5f3fc",
-        tabBarInactiveTintColor: "#7a5d4d",
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+          borderTopWidth: 1,
+        },
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textMuted,
       }}
     >
       <Tab.Screen
@@ -71,11 +77,12 @@ function MainTabs() {
 export default function App() {
   const hasCompletedOnboarding = useProfileStore((s) => s.hasCompletedOnboarding);
   const themeReady = useThemeStore((s) => s.ready);
+  const fontsLoaded = useFonts();
 
-  if (!themeReady) {
+  if (!themeReady || !fontsLoaded) {
     return (
-      <View className="flex-1 items-center justify-center bg-island-950">
-        <Text className="text-ray-elemental text-lg">Ray Astrology is awakening...</Text>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#1a1410" }}>
+        <Text style={{ color: "#a5f3fc", fontSize: 18, fontFamily: "Alice" }}>Ray Astrology is awakening...</Text>
       </View>
     );
   }
@@ -83,17 +90,27 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {!hasCompletedOnboarding ? (
-              <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            ) : (
-              <Stack.Screen name="Main" component={MainTabs} />
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-        <StatusBar style="light" />
+        <AppContent hasCompletedOnboarding={hasCompletedOnboarding} />
       </ThemeProvider>
     </SafeAreaProvider>
+  );
+}
+
+function AppContent({ hasCompletedOnboarding }: { hasCompletedOnboarding: boolean }) {
+  const { isDark } = useTheme();
+
+  return (
+    <>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!hasCompletedOnboarding ? (
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          ) : (
+            <Stack.Screen name="Main" component={MainTabs} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+      <StatusBar style={isDark ? "light" : "dark"} />
+    </>
   );
 }

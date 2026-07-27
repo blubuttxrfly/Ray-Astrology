@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { useTheme } from "../components/ThemeProvider";
 import { useProfileStore } from "../store/profileStore";
 import { calculateSynastry } from "../lib/aspectEngine";
 import type { AspectResult } from "../types";
@@ -17,6 +18,7 @@ const ASPECT_LABELS: Record<AspectResult["aspectType"], string> = {
 };
 
 export function SynastryScreen() {
+  const { colors, fontFamily } = useTheme();
   const profiles = useProfileStore((s) => s.profiles);
   const settings = useProfileStore((s) => s.settings);
   const [leftId, setLeftId] = useState<string | null>(null);
@@ -39,37 +41,45 @@ export function SynastryScreen() {
   const filteredAspects =
     reading?.aspects.filter((a) => (filter === "all" ? true : a.aspectType === filter)) ?? [];
 
-  return (
-    <ScrollView className="flex-1 px-5 py-6">
-      <Text className="text-2xl font-bold text-ray-elemental mb-4">Synastry</Text>
+  const cardStyle = {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
 
-      <View className="flex-row space-x-3 mb-4">
-        <View className="flex-1">
-          <Text className="text-island-300 text-sm mb-1">Being A</Text>
-          <View className="border border-island-700 rounded-lg">
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.text, marginBottom: 16, fontFamily }}>Synastry</Text>
+
+      <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 12, marginBottom: 6, fontFamily }}>Being A</Text>
+          <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 12, overflow: "hidden" }}>
             {profiles.map((p) => (
               <TouchableOpacity
                 key={p.id}
                 onPress={() => setLeftId(p.id)}
-                className={`px-3 py-2 ${leftId === p.id ? "bg-island-700" : ""}`}
+                style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: leftId === p.id ? colors.surfaceAlt : colors.surface }}
               >
-                <Text className={leftId === p.id ? "text-island-100 font-bold" : "text-island-300"}>
+                <Text style={{ color: leftId === p.id ? colors.text : colors.textMuted, fontWeight: leftId === p.id ? "bold" : "normal", fontFamily }}>
                   {p.name}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
-        <View className="flex-1">
-          <Text className="text-island-300 text-sm mb-1">Being B</Text>
-          <View className="border border-island-700 rounded-lg">
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 12, marginBottom: 6, fontFamily }}>Being B</Text>
+          <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 12, overflow: "hidden" }}>
             {profiles.map((p) => (
               <TouchableOpacity
                 key={p.id}
                 onPress={() => setRightId(p.id)}
-                className={`px-3 py-2 ${rightId === p.id ? "bg-island-700" : ""}`}
+                style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: rightId === p.id ? colors.surfaceAlt : colors.surface }}
               >
-                <Text className={rightId === p.id ? "text-island-100 font-bold" : "text-island-300"}>
+                <Text style={{ color: rightId === p.id ? colors.text : colors.textMuted, fontWeight: rightId === p.id ? "bold" : "normal", fontFamily }}>
                   {p.name}
                 </Text>
               </TouchableOpacity>
@@ -79,55 +89,57 @@ export function SynastryScreen() {
       </View>
 
       {reading && (
-        <View className="space-y-4">
-          <View className="rounded-2xl p-4 border border-island-700">
-            <Text className="text-island-300 text-sm uppercase tracking-wider mb-2">Summary</Text>
-            <Text className="text-island-100 leading-relaxed">{reading.summary}</Text>
-            <View className="flex-row justify-between mt-3">
-              <Text className="text-island-400">Harmony: {reading.harmonyScore}%</Text>
-              <Text className="text-island-400">Tension: {reading.tensionScore}%</Text>
+        <View style={{ gap: 16 }}>
+          <View style={cardStyle}>
+            <Text style={{ color: colors.textMuted, fontSize: 12, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, fontFamily }}>Summary</Text>
+            <Text style={{ color: colors.text, lineHeight: 22, fontFamily }}>{reading.summary}</Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 12 }}>
+              <Text style={{ color: colors.textMuted, fontFamily }}>Harmony: {reading.harmonyScore}%</Text>
+              <Text style={{ color: colors.textMuted, fontFamily }}>Tension: {reading.tensionScore}%</Text>
             </View>
           </View>
 
-          <View className="flex-row flex-wrap gap-2 mb-2">
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
             {(["all", "conjunction", "trine", "square", "opposition"] as const).map((f) => (
               <TouchableOpacity
                 key={f}
                 onPress={() => setFilter(f)}
-                className={`px-3 py-1 rounded-full border ${
-                  filter === f ? "bg-ray-elemental border-ray-elemental" : "border-island-600"
-                }`}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: f === filter ? colors.accent : colors.border,
+                  backgroundColor: f === filter ? colors.accent : colors.surface,
+                }}
               >
-                <Text className={filter === f ? "text-island-950 font-bold" : "text-island-300"}>
+                <Text style={{ color: f === filter ? colors.accentText : colors.textMuted, fontWeight: f === filter ? "bold" : "normal", fontFamily }}>
                   {f === "all" ? "All" : ASPECT_LABELS[f]}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <View className="space-y-3">
+          <View style={{ gap: 12 }}>
             {filteredAspects.map((aspect) => (
-              <View key={aspect.id} className="rounded-xl p-4 border border-island-700">
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-island-100 font-bold">
+              <View key={aspect.id} style={cardStyle}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <Text style={{ color: colors.text, fontWeight: "bold", fontFamily }}>
                     {aspect.symbolA} {aspect.bodyA} ↔ {aspect.symbolB} {aspect.bodyB}
                   </Text>
-                  <Text className="text-island-400 text-sm capitalize">{aspect.aspectType}</Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 14, textTransform: "capitalize", fontFamily }}>{aspect.aspectType}</Text>
                 </View>
-                <View className="flex-row justify-between text-sm mb-2">
-                  <Text style={{ color: aspect.rayColorA }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
+                  <Text style={{ color: aspect.rayColorA, fontFamily }}>
                     {aspect.signNameA} ({aspect.rayA})
                   </Text>
-                  <Text style={{ color: aspect.rayColorB }}>
+                  <Text style={{ color: aspect.rayColorB, fontFamily }}>
                     {aspect.signNameB} ({aspect.rayB})
                   </Text>
                 </View>
-                <Text className="text-island-300 text-sm leading-relaxed">{aspect.interpretation}</Text>
-                <View className="mt-2 h-1 bg-island-800 rounded-full overflow-hidden">
-                  <View
-                    className="h-full bg-ray-elemental"
-                    style={{ width: `${aspect.strength * 100}%` }}
-                  />
+                <Text style={{ color: colors.textMuted, fontSize: 14, lineHeight: 20, fontFamily }}>{aspect.interpretation}</Text>
+                <View style={{ marginTop: 10, height: 6, backgroundColor: colors.surfaceAlt, borderRadius: 999, overflow: "hidden" }}>
+                  <View style={{ height: "100%", backgroundColor: colors.accent, width: `${aspect.strength * 100}%` }} />
                 </View>
               </View>
             ))}
@@ -136,7 +148,7 @@ export function SynastryScreen() {
       )}
 
       {!reading && profiles.length < 2 && (
-        <Text className="text-island-400 text-center mt-8">Add at least two beings to explore synastry.</Text>
+        <Text style={{ color: colors.textMuted, textAlign: "center", marginTop: 32, fontFamily }}>Add at least two beings to explore synastry.</Text>
       )}
     </ScrollView>
   );

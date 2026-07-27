@@ -1,21 +1,24 @@
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+} from "react-native";
 import { useTheme } from "../components/ThemeProvider";
 import { useProfileStore } from "../store/profileStore";
-import { ZODIAC_SIGNS } from "../lib/chartEngine";
 
 function formatPlacement(p: { signName: string; signSymbol: string; degrees: number; minutes: number }) {
   return `${p.signSymbol} ${p.signName} ${p.degrees}°${p.minutes.toString().padStart(2, "0")}′`;
 }
 
 export function ProfileScreen() {
-  const { colors } = useTheme();
+  const { colors, fontFamily } = useTheme();
   const profile = useProfileStore((s) => s.getActiveProfile());
 
   if (!profile) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-island-300 text-base">No Being Profile found.</Text>
+      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
+        <Text style={{ color: colors.textMuted, fontSize: 16, fontFamily }}>No Being Profile found.</Text>
       </View>
     );
   }
@@ -25,55 +28,64 @@ export function ProfileScreen() {
   const moon = chart?.bodies.find((b) => b.body === "Moon");
   const ascendant = chart?.ascendant;
 
+  const cardStyle = {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
+
+  const sectionTitleStyle = {
+    color: colors.textMuted,
+    fontSize: 12,
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
+    marginBottom: 12,
+    fontFamily,
+  };
+
   return (
-    <ScrollView className="flex-1 px-5 py-6">
-      <View className="mb-6">
-        <Text className="text-3xl font-bold text-ray-elemental">{profile.name}</Text>
-        <Text className="text-island-400 mt-1">{profile.birthPlaceLabel}</Text>
-        <Text className="text-island-400">
-          {profile.birthDate} • {profile.birthTime}
-        </Text>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 20 }}>
+      <View style={{ marginBottom: 24 }}>
+        <Text style={{ fontSize: 28, fontWeight: "bold", color: colors.text, fontFamily }}>{profile.name}</Text>
+        <Text style={{ color: colors.textMuted, marginTop: 4, fontFamily }}>{profile.birthPlaceLabel}</Text>
+        <Text style={{ color: colors.textMuted, fontFamily }}>{profile.birthDate} • {profile.birthTime}</Text>
       </View>
 
       {chart ? (
-        <View className="space-y-4">
-          <View className="rounded-2xl p-5 border border-island-700">
-            <Text className="text-island-300 text-sm uppercase tracking-wider mb-3">Core Signature</Text>
-            <View className="flex-row flex-wrap gap-3">
+        <View style={{ gap: 16 }}>
+          <View style={cardStyle}>
+            <Text style={sectionTitleStyle}>Core Signature</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
               {sun && (
-                <View className="rounded-lg px-3 py-2">
-                  <Text className="text-island-400 text-xs">Sun ☉</Text>
-                  <Text className="font-bold text-base" style={{ color: sun.rayColor }}>
-                    {formatPlacement(sun)}
-                  </Text>
+                <View style={{ backgroundColor: colors.surfaceAlt, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 12, fontFamily }}>Sun ☉</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: 16, color: sun.rayColor, fontFamily }}>{formatPlacement(sun)}</Text>
                 </View>
               )}
               {moon && (
-                <View className="rounded-lg px-3 py-2">
-                  <Text className="text-island-400 text-xs">Moon ☾</Text>
-                  <Text className="font-bold text-base" style={{ color: moon.rayColor }}>
-                    {formatPlacement(moon)}
-                  </Text>
+                <View style={{ backgroundColor: colors.surfaceAlt, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 12, fontFamily }}>Moon ☾</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: 16, color: moon.rayColor, fontFamily }}>{formatPlacement(moon)}</Text>
                 </View>
               )}
               {ascendant && (
-                <View className="rounded-lg px-3 py-2">
-                  <Text className="text-island-400 text-xs">Rising ASC</Text>
-                  <Text className="font-bold text-base" style={{ color: ascendant.rayColor }}>
-                    {formatPlacement(ascendant)}
-                  </Text>
+                <View style={{ backgroundColor: colors.surfaceAlt, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 12, fontFamily }}>Rising ASC</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: 16, color: ascendant.rayColor, fontFamily }}>{formatPlacement(ascendant)}</Text>
                 </View>
               )}
             </View>
           </View>
 
-          <View className="rounded-2xl p-5 border border-island-700">
-            <Text className="text-island-300 text-sm uppercase tracking-wider mb-3">Natal Planets</Text>
-            <View className="space-y-2">
+          <View style={cardStyle}>
+            <Text style={sectionTitleStyle}>Natal Planets</Text>
+            <View style={{ gap: 8 }}>
               {chart.bodies.map((body) => (
-                <View key={body.body} className="flex-row justify-between items-center py-1">
-                  <Text className="text-island-200">{body.symbol} {body.body}</Text>
-                  <Text className="font-medium" style={{ color: body.rayColor }}>
+                <View key={body.body} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 4 }}>
+                  <Text style={{ color: colors.text, fontFamily }}>{body.symbol} {body.body}</Text>
+                  <Text style={{ fontWeight: "500", color: body.rayColor, fontFamily }}>
                     {formatPlacement(body)} {body.houseNumber ? `H${body.houseNumber}` : ""}
                   </Text>
                 </View>
@@ -81,26 +93,23 @@ export function ProfileScreen() {
             </View>
           </View>
 
-          <View className="rounded-2xl p-5 border border-island-700">
-            <Text className="text-island-300 text-sm uppercase tracking-wider mb-3">House Wheel</Text>
-            <View className="space-y-1">
-              {chart.houses.map((house) => {
-                const sign = ZODIAC_SIGNS[house.cusp.signIndex];
-                return (
-                  <View key={house.houseNumber} className="flex-row justify-between items-center py-1">
-                    <Text className="text-island-400 w-24">House {house.houseNumber}</Text>
-                    <Text className="text-island-300 flex-1">{house.theme}</Text>
-                    <Text className="font-medium" style={{ color: sign.rayColor }}>
-                      {sign.symbol} {sign.name}
-                    </Text>
-                  </View>
-                );
-              })}
+          <View style={cardStyle}>
+            <Text style={sectionTitleStyle}>House Wheel</Text>
+            <View style={{ gap: 4 }}>
+              {chart.houses.map((house) => (
+                <View key={house.houseNumber} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 4 }}>
+                  <Text style={{ color: colors.textMuted, width: 90, fontFamily }}>House {house.houseNumber}</Text>
+                  <Text style={{ color: colors.text, flex: 1, fontFamily }}>{house.theme}</Text>
+                  <Text style={{ fontWeight: "500", color: house.cusp.rayColor, fontFamily }}>
+                    {house.cusp.signSymbol} {house.cusp.signName}
+                  </Text>
+                </View>
+              ))}
             </View>
           </View>
         </View>
       ) : (
-        <Text className="text-island-400">Calculating your chart...</Text>
+        <Text style={{ color: colors.textMuted, fontFamily }}>Calculating your chart...</Text>
       )}
     </ScrollView>
   );

@@ -1,9 +1,17 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { useThemeStore } from "../store/themeStore";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { useTheme } from "../components/ThemeProvider";
 import { useProfileStore } from "../store/profileStore";
+import { useThemeStore } from "../store/themeStore";
 
 export function SettingsScreen() {
+  const { colors, fontFamily } = useTheme();
   const theme = useThemeStore((s) => s.theme);
   const rayHues = useThemeStore((s) => s.rayHues);
   const setTheme = useThemeStore((s) => s.setTheme);
@@ -23,27 +31,42 @@ export function SettingsScreen() {
     );
   };
 
-  return (
-    <ScrollView className="flex-1 px-5 py-6">
-      <Text className="text-2xl font-bold text-ray-elemental mb-6">Settings</Text>
+  const cardStyle = {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
 
-      <View className="rounded-2xl p-4 border border-island-700 mb-6">
-        <Text className="text-island-300 text-sm uppercase tracking-wider mb-3">Theme</Text>
-        <View className="flex-row space-x-2">
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.text, marginBottom: 24, fontFamily }}>Settings</Text>
+
+      <View style={[cardStyle, { marginBottom: 16 }]}>
+        <Text style={{ color: colors.textMuted, fontSize: 12, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, fontFamily }}>Theme</Text>
+        <View style={{ flexDirection: "row", gap: 8 }}>
           {(["atlas", "dark", "light"] as const).map((t) => (
             <TouchableOpacity
               key={t}
               onPress={() => setTheme(t)}
-              className={`flex-1 py-2 rounded-lg border ${
-                theme === t
-                  ? "bg-ray-elemental border-ray-elemental"
-                  : "border-island-600"
-              }`}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: theme === t ? colors.accent : colors.border,
+                backgroundColor: theme === t ? colors.accent : colors.surface,
+              }}
             >
               <Text
-                className={`text-center font-semibold capitalize ${
-                  theme === t ? "text-island-950" : "text-island-300"
-                }`}
+                style={{
+                  textAlign: "center",
+                  fontWeight: "600",
+                  textTransform: "capitalize",
+                  color: theme === t ? colors.accentText : colors.text,
+                  fontFamily,
+                }}
               >
                 {t}
               </Text>
@@ -52,25 +75,30 @@ export function SettingsScreen() {
         </View>
       </View>
 
-      <View className="rounded-2xl p-4 border border-island-700 mb-6">
-        <Text className="text-island-300 text-sm uppercase tracking-wider mb-3">Aspect Settings</Text>
-        <View className="flex-row justify-between items-center py-2">
-          <Text className="text-island-200">Default Orb</Text>
-          <View className="flex-row space-x-2">
+      <View style={[cardStyle, { marginBottom: 16 }]}>
+        <Text style={{ color: colors.textMuted, fontSize: 12, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12, fontFamily }}>Aspect Settings</Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 8 }}>
+          <Text style={{ color: colors.text, fontFamily }}>Default Orb</Text>
+          <View style={{ flexDirection: "row", gap: 8 }}>
             {[6, 8, 10].map((orb) => (
               <TouchableOpacity
                 key={orb}
                 onPress={() => setSettings({ defaultOrb: orb })}
-                className={`px-3 py-1 rounded-lg border ${
-                  settings.defaultOrb === orb
-                    ? "bg-ray-elemental border-ray-elemental"
-                    : "border-island-600"
-                }`}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: settings.defaultOrb === orb ? colors.accent : colors.border,
+                  backgroundColor: settings.defaultOrb === orb ? colors.accent : colors.surface,
+                }}
               >
                 <Text
-                  className={
-                    settings.defaultOrb === orb ? "text-island-950 font-bold" : "text-island-300"
-                  }
+                  style={{
+                    color: settings.defaultOrb === orb ? colors.accentText : colors.text,
+                    fontWeight: settings.defaultOrb === orb ? "bold" : "normal",
+                    fontFamily,
+                  }}
                 >
                   {orb}°
                 </Text>
@@ -81,36 +109,42 @@ export function SettingsScreen() {
 
         <TouchableOpacity
           onPress={() => setSettings({ luminariesExtraOrb: !settings.luminariesExtraOrb })}
-          className="flex-row justify-between items-center py-3 mt-2"
+          style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 12, marginTop: 8 }}
         >
-          <Text className="text-island-200">Wider orbs for Sun and Moon</Text>
-          <Text className="text-ray-elemental font-bold">{settings.luminariesExtraOrb ? "ON" : "OFF"}</Text>
+          <Text style={{ color: colors.text, fontFamily }}>Wider orbs for Sun and Moon</Text>
+          <Text style={{ color: colors.accent, fontWeight: "bold", fontFamily }}>{settings.luminariesExtraOrb ? "ON" : "OFF"}</Text>
         </TouchableOpacity>
       </View>
 
-      <View className="rounded-2xl p-4 border border-island-700 mb-6">
-        <View className="flex-row justify-between items-center mb-3">
-          <Text className="text-island-300 text-sm uppercase tracking-wider">Ray Hues</Text>
+      <View style={[cardStyle, { marginBottom: 16 }]}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 12, textTransform: "uppercase", letterSpacing: 1, fontFamily }}>Ray Hues</Text>
           <TouchableOpacity onPress={handleReset}>
-            <Text className="text-ray-elemental text-sm">Reset</Text>
+            <Text style={{ color: colors.accent, fontSize: 14, fontFamily }}>Reset</Text>
           </TouchableOpacity>
         </View>
 
-        <View className="flex-row flex-wrap gap-3">
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
           {(Object.keys(rayHues) as Array<keyof typeof rayHues>).map((ray) => (
-            <View key={ray} className="flex-row items-center space-x-2 w-[45%]">
+            <View key={ray} style={{ flexDirection: "row", alignItems: "center", gap: 8, width: "45%" }}>
               <View
-                className="w-8 h-8 rounded-full border border-island-600"
-                style={{ backgroundColor: rayHues[ray] }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: rayHues[ray],
+                }}
               />
-              <Text className="text-island-300 text-sm capitalize">{ray}</Text>
+              <Text style={{ color: colors.text, fontSize: 14, textTransform: "capitalize", fontFamily }}>{ray}</Text>
             </View>
           ))}
         </View>
       </View>
 
-      <View className="mt-8">
-        <Text className="text-island-500 text-center text-xs">Ray Astrology v1.0.0 — Heartlight Exchange</Text>
+      <View style={{ marginTop: 32 }}>
+        <Text style={{ color: colors.textMuted, textAlign: "center", fontSize: 12, fontFamily }}>Ray Astrology v1.0.0 — Heartlight Exchange</Text>
       </View>
     </ScrollView>
   );

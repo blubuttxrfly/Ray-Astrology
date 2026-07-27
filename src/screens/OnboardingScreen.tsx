@@ -3,14 +3,15 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useTheme } from "../components/ThemeProvider";
 import { useProfileStore } from "../store/profileStore";
 
 export function OnboardingScreen() {
+  const { colors, fontFamily } = useTheme();
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("2001-08-22");
   const [birthTime, setBirthTime] = useState("06:38");
@@ -52,98 +53,73 @@ export function OnboardingScreen() {
     completeOnboarding();
   };
 
+  const inputStyle = {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    fontFamily,
+  };
+
   return (
-    <ScrollView className="flex-1 bg-island-950 px-6 py-12">
-      <View className="mb-8">
-        <Text className="text-3xl font-bold text-ray-elemental mb-2">Ray Astrology</Text>
-        <Text className="text-island-300 text-base">
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 24, paddingTop: 48 }}>
+      <View style={{ marginBottom: 32 }}>
+        <Text style={{ fontSize: 32, fontWeight: "bold", color: colors.accent, marginBottom: 8, fontFamily }}>Ray Astrology</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 16, fontFamily }}>
           Enter your birth data to remember your Heartlight from within.
         </Text>
       </View>
 
-      <View className="space-y-5">
-        <View>
-          <Text className="text-island-200 mb-1 text-sm">Your Name</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="e.g., Zaria"
-            placeholderTextColor="#7a5d4d"
-            className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
-          />
-        </View>
-
-        <View>
-          <Text className="text-island-200 mb-1 text-sm">Birth Date (YYYY-MM-DD)</Text>
-          <TextInput
-            value={birthDate}
-            onChangeText={setBirthDate}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#7a5d4d"
-            className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
-          />
-        </View>
-
-        <View>
-          <Text className="text-island-200 mb-1 text-sm">Birth Time (24h HH:MM)</Text>
-          <TextInput
-            value={birthTime}
-            onChangeText={setBirthTime}
-            placeholder="HH:MM"
-            placeholderTextColor="#7a5d4d"
-            className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
-          />
-        </View>
-
-        <View>
-          <Text className="text-island-200 mb-1 text-sm">Birth Location</Text>
-          <TextInput
-            value={birthPlace}
-            onChangeText={setBirthPlace}
-            placeholder="City, Country"
-            placeholderTextColor="#7a5d4d"
-            className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
-          />
-        </View>
-
-        <View className="flex-row space-x-3">
-          <View className="flex-1">
-            <Text className="text-island-200 mb-1 text-sm">Latitude</Text>
+      <View style={{ gap: 20 }}>
+        {[
+          { label: "Your Name", value: name, onChange: setName, placeholder: "e.g., Zaria" },
+          { label: "Birth Date (YYYY-MM-DD)", value: birthDate, onChange: setBirthDate, placeholder: "YYYY-MM-DD" },
+          { label: "Birth Time (24h HH:MM)", value: birthTime, onChange: setBirthTime, placeholder: "HH:MM" },
+          { label: "Birth Location", value: birthPlace, onChange: setBirthPlace, placeholder: "City, Country" },
+        ].map((field) => (
+          <View key={field.label}>
+            <Text style={{ color: colors.text, marginBottom: 6, fontSize: 14, fontFamily }}>{field.label}</Text>
             <TextInput
-              value={lat}
-              onChangeText={setLat}
-              keyboardType="decimal-pad"
-              className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={field.placeholder}
+              placeholderTextColor={colors.textMuted}
+              style={inputStyle}
             />
           </View>
-          <View className="flex-1">
-            <Text className="text-island-200 mb-1 text-sm">Longitude</Text>
-            <TextInput
-              value={lon}
-              onChangeText={setLon}
-              keyboardType="decimal-pad"
-              className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
-            />
+        ))}
+
+        <View style={{ flexDirection: "row", gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: colors.text, marginBottom: 6, fontSize: 14, fontFamily }}>Latitude</Text>
+            <TextInput value={lat} onChangeText={setLat} keyboardType="decimal-pad" style={inputStyle} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: colors.text, marginBottom: 6, fontSize: 14, fontFamily }}>Longitude</Text>
+            <TextInput value={lon} onChangeText={setLon} keyboardType="decimal-pad" style={inputStyle} />
           </View>
         </View>
 
         <View>
-          <Text className="text-island-200 mb-1 text-sm">Timezone Offset (minutes from UTC)</Text>
+          <Text style={{ color: colors.text, marginBottom: 6, fontSize: 14, fontFamily }}>Timezone Offset (minutes from UTC)</Text>
           <TextInput
             value={timezoneOffset}
             onChangeText={setTimezoneOffset}
             keyboardType="number-pad"
             placeholder="e.g., -300 for EST"
-            placeholderTextColor="#7a5d4d"
-            className="border border-island-700 rounded-lg px-4 py-3 text-island-100 bg-island-900"
+            placeholderTextColor={colors.textMuted}
+            style={inputStyle}
           />
         </View>
 
         <TouchableOpacity
           onPress={handleCreateProfile}
-          className="bg-ray-elemental rounded-lg py-4 mt-4"
+          style={{ backgroundColor: colors.accent, borderRadius: 12, paddingVertical: 16, marginTop: 8 }}
         >
-          <Text className="text-island-950 text-center font-bold text-base">
+          <Text style={{ color: colors.accentText, textAlign: "center", fontWeight: "bold", fontSize: 16, fontFamily }}>
             Remember My Heartlight
           </Text>
         </TouchableOpacity>
